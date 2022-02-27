@@ -62,12 +62,13 @@ public class SessionApi {
 	}
 	
 	@PostMapping("/new")
-	public static Response newSession(@RequestBody NewSessionRequest req) {
+	public static Response newSession(@RequestBody NewSessionRequest req, HttpServletRequest httpReq) {
+		IpRateLimiter.checkIP(httpReq, 5);
 		if (!rate.tryAcquire(5, Duration.ofSeconds(5))) throw new ApiLimitException();
 		try {
 			// Input data checks
 			if (req.username == null) throw new ApiException("A username must be specified");
-			if (!req.username.matches("^[a-zA-Z0-9_\\-. ]{1,16}$")) throw new ApiException("Invalid Username (must only contain the alphebet, spaces, hyphens, and underlines)");
+			//if (!req.username.matches("^[a-zA-Z0-9_\\-. ]{1,16}$")) throw new ApiException("Invalid Username (must only contain the alphebet, spaces, hyphens, and underlines)");
 			
 			// Submitting
 			String token = UUID.randomUUID().toString();
@@ -83,7 +84,8 @@ public class SessionApi {
 	}
 	
 	@PostMapping("/heartbeat")
-	public static Response heartbeat(@RequestBody HeartbeatRequest req) {
+	public static Response heartbeat(@RequestBody HeartbeatRequest req, HttpServletRequest httpReq) {
+		IpRateLimiter.checkIP(httpReq, 1);
 		if (!rate.tryAcquire(1, Duration.ofSeconds(3))) throw new ApiLimitException();
 		try {
 			// Input data checks
@@ -108,7 +110,8 @@ public class SessionApi {
 	}
 	
 	@PostMapping("/startgame")
-	public static Response startGame(@RequestBody StartGameRequest req) {
+	public static Response startGame(@RequestBody StartGameRequest req, HttpServletRequest httpReq) {
+		IpRateLimiter.checkIP(httpReq, 1);
 		if (!rate.tryAcquire(1, Duration.ofSeconds(3))) throw new ApiLimitException();
 		try {
 			// Input data checks
@@ -135,7 +138,8 @@ public class SessionApi {
 	}
 	
 	@PostMapping("/endgame")
-	public static Response endGame(@RequestBody EndGameRequest req) {
+	public static Response endGame(@RequestBody EndGameRequest req, HttpServletRequest httpReq) {
+		IpRateLimiter.checkIP(httpReq, 1);
 		if (!rate.tryAcquire(1, Duration.ofSeconds(3))) throw new ApiLimitException();
 		try {
 			// Input data checks
@@ -154,7 +158,7 @@ public class SessionApi {
 			if (score < 0 || score > 5000) throw new NumberFormatException("Invalid Score");
 			
 			// Submitting
-			Leaderboard.submitScore(data.user, score);
+			if (score != 0) Leaderboard.submitScore(data.user, score);
 			return new Response(true);
 			
 		} catch (CheatDetection e) {

@@ -1,4 +1,4 @@
-# **FOOAAAHH Backend**
+# **FOOAAAHH Proxy**
 
 Always returns a json object with the boolean `"success"` as long as the status code is `200`<br>
 If `"success": true`, the data will be in the same json object.<br>
