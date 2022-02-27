@@ -42,14 +42,18 @@ public class IpRateLimiter {
 	}
 	
 	public static void checkIP(HttpServletRequest req, int increment) {
+		checkIP(getTrueIp(req), increment);
+	}
+	
+	public static String getTrueIp(HttpServletRequest req) {
 		String forward = req.getHeader("X-FORWARDED-FOR");
 		if (forward != null) {
 			if (forward.contains(","))
-				checkIP(forward.substring(0, forward.indexOf(',')), increment);
+				return forward.substring(0, forward.indexOf(','));
 			else
-				checkIP(forward, increment);
+				return forward;
 		} else {
-			checkIP(req.getRemoteAddr(), increment);
+			return req.getRemoteAddr();
 		}
 	}
 	

@@ -155,7 +155,10 @@ public class SessionApi {
 			
 			// Score checks
 			int score = Integer.parseInt(Encryption.decrypt(req.score, data.base64key));
-			if (score < 0 || score > 5000) throw new NumberFormatException("Invalid Score");
+			if (score < 0 || score > 5000) throw new ApiException("Invalid Score");
+			
+			// Time related checks
+			if (score > 100 && start > System.currentTimeMillis() - 60000)
 			
 			// Submitting
 			if (score != 0) Leaderboard.submitScore(data.user, score);
