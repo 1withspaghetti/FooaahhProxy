@@ -158,7 +158,8 @@ public class SessionApi {
 			if (score < 0 || score > 5000) throw new ApiException("Invalid Score");
 			
 			// Time related checks
-			if (score > 100 && start > System.currentTimeMillis() - 60000)
+			if (score > 100 && start > System.currentTimeMillis() - 60000) throw new ApiException("Invalid Score");
+			if (score > 1000 && start > System.currentTimeMillis() - 300000) throw new ApiException("Invalid Score");
 			
 			// Submitting
 			if (score != 0) Leaderboard.submitScore(data.user, score);

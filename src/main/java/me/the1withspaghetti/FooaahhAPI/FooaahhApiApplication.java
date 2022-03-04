@@ -18,6 +18,8 @@ public class FooaahhApiApplication {
 		Leaderboard.init();
 		SessionApi.initCleanSessions();
 		IpRateLimiter.init();
+		
+		//TransferLeaderboard.transfer();
 	}
 
 }

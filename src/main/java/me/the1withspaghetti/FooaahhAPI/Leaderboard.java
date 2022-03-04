@@ -19,15 +19,15 @@ public class Leaderboard {
 	public static final String URL_PREFIX = "https://s7w04rp9.api.lootlocker.io";
 	public static final String API_VERSION = "2021-03-01";
 	public static final String GAME_VERSION = "10.0.0.0";
-	public static final String LEADERBOARD_ID = "807";
+	public static final String LEADERBOARD_ID = "867";
 	
 	public static String SERVER_API_KEY;
 	public static String API_TOKEN = "";
 	
-	private static final HttpClient client = HttpClient.newBuilder()
+	public static final HttpClient client = HttpClient.newBuilder()
             .version(HttpClient.Version.HTTP_2)
             .build();
-	private static final Gson gson = new Gson();
+	public static final Gson gson = new Gson();
 	
 	public static void init() throws IOException, InterruptedException {
 		SERVER_API_KEY = new String(Leaderboard.class.getResourceAsStream("/server_api_key.secret").readAllBytes());
@@ -43,12 +43,13 @@ public class Leaderboard {
 				}
 			}
 		};
-		t.scheduleAtFixedRate(task, 1800000, 1800000); // 30 minutes
+		t.scheduleAtFixedRate(task, 5000, 1800000); // 30 minutes
 	}
 	
 	public static void registerSession() throws MalformedURLException, IOException, InterruptedException {
 		JsonObject json = new JsonObject();
 		json.addProperty("game_version", GAME_VERSION);
+		json.addProperty("is_development", false);
 		HttpRequest req = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(json.toString()))
                 .uri(URI.create(URL_PREFIX+"/server/session"))
@@ -59,8 +60,6 @@ public class Leaderboard {
 		System.out.println("POST req to "+req.uri());
 		System.out.println("Body: "+json.toString());
 		System.out.println("Headers: "+req.headers().toString());
-		
-		
 		System.out.println();
 		
 		HttpResponse<String> res = client.send(req, BodyHandlers.ofString());
@@ -70,6 +69,10 @@ public class Leaderboard {
 			System.out.println("Registered Session: "+resJson.get("token").getAsString());
 		} else {
 			System.err.println("Error registering session: "+res.statusCode()+" "+resJson.get("error").getAsString());
+			System.err.println("POST req to "+req.uri());
+			System.err.println("Body: "+json.toString());
+			System.err.println("Headers: "+req.headers().toString());
+			System.err.println("--- Response ---");
 			System.err.println(res.body());
 		}
 	}
@@ -77,7 +80,7 @@ public class Leaderboard {
 	public static void heartbeatSession() throws MalformedURLException, IOException, InterruptedException {
 		HttpRequest req = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create(URL_PREFIX+"/server/session"))
+                .uri(URI.create(URL_PREFIX+"/server/ping"))
                 .setHeader("LL-Version", API_VERSION)
                 .setHeader("x-auth-token", API_TOKEN)
                 .build();
@@ -105,8 +108,15 @@ public class Leaderboard {
 			
 			HttpResponse<String> res = client.send(req, BodyHandlers.ofString());
 			JsonObject resJson = gson.fromJson(res.body(), JsonObject.class);
-			if (resJson.has("error")) {
-				System.err.println("Error submitting score: "+res.statusCode()+" "+resJson.get("error").getAsString());
+			if (resJson.has("error") || res.statusCode() != 200) {
+				System.err.println("##### Error submitting score: "+res.statusCode()+" "+resJson.get("error").getAsString()+" #####");
+				System.err.println("POST req to "+req.uri());
+				System.err.println("Body: "+json.toString());
+				System.err.println("Headers: "+req.headers().toString());
+				System.err.println("##### Response "+res.statusCode()+" #####");
+				System.err.println(res.body());
+			} else {
+				System.out.println(res.body());
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

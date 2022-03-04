@@ -58,14 +58,34 @@ public class IpRateLimiter {
 	}
 	
 	
-	public static byte[] parseIP(String ipAddr) {
-		byte[] ret = new byte[4];
-		String[] ipArr = ipAddr.split("\\.");
-		ret[0] = (byte) (Integer.parseInt(ipArr[0]) & 0xFF);
-		ret[1] = (byte) (Integer.parseInt(ipArr[1]) & 0xFF);
-		ret[2] = (byte) (Integer.parseInt(ipArr[2]) & 0xFF);
-		ret[3] = (byte) (Integer.parseInt(ipArr[3]) & 0xFF);
-		return ret;
+	public static byte[] parseIP(String ip) {
+		if (ip.contains(".")) {
+			// ipv4
+			byte[] ret = new byte[4];
+			String[] ipArr = ip.split("\\.");
+			ret[0] = (byte) (Integer.parseInt(ipArr[0]) & 0xFF);
+			ret[1] = (byte) (Integer.parseInt(ipArr[1]) & 0xFF);
+			ret[2] = (byte) (Integer.parseInt(ipArr[2]) & 0xFF);
+			ret[3] = (byte) (Integer.parseInt(ipArr[3]) & 0xFF);
+			return ret;
+		} else if (ip.contains(":")) {
+			// ipv6
+			byte[] ret = new byte[8];
+			String[] ipArr = ip.split(":");
+			ret[0] = (byte) (Integer.parseInt(ipArr[0]) & 0xFF);
+			ret[1] = (byte) (Integer.parseInt(ipArr[1]) & 0xFF);
+			ret[2] = (byte) (Integer.parseInt(ipArr[2]) & 0xFF);
+			ret[3] = (byte) (Integer.parseInt(ipArr[3]) & 0xFF);
+			ret[4] = (byte) (Integer.parseInt(ipArr[4]) & 0xFF);
+			ret[5] = (byte) (Integer.parseInt(ipArr[5]) & 0xFF);
+			ret[6] = (byte) (Integer.parseInt(ipArr[6]) & 0xFF);
+			ret[7] = (byte) (Integer.parseInt(ipArr[7]) & 0xFF);
+			return ret;
+		} else {
+			System.out.println("Unknown ip string: "+ip);
+			return null;
+		}
+		
 	}
 	
 }
